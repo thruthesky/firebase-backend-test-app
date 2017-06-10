@@ -4,9 +4,6 @@
     Welcome to {{title}}!!
   </h1>
 </div>
-<h2>Here are some links to help you start: </h2>
-
-
 
 <div *ngIf=" !user.isLogged ">
   <button (click)="onClickLoginWithGoogle()">Google Login</button>
@@ -21,7 +18,8 @@
 <div>Am I admin? {{ user.isAdmin }}</div>
 
 
-
+<hr>
+<h2>Forum Category</h2>
 
 Create a forum category:
 <input name="category_id" [(ngModel)]="category_id" placeholder="Category ID">
@@ -33,12 +31,40 @@ Create a forum category:
     <tr>
       <th>ID</th>
       <th>Name</th>
+      <th>Description</th>
       <th>EDIT</th>
+      <th>DELETE</th>
     </tr>
     <tr *ngFor=" let c of categories; let i = index">
-      <td><input type="text" name="id" value="{{ c.id }}" [(ngModel)]="c.id"></td>
+      <td>{{ c.id }}</td>
       <td><input type="text" name="name" value="{{ c.name }}" [(ngModel)]="c.name"></td>
+      <td><input type="text" name="desc" value="{{ c.description }}" [(ngModel)]="c.description"></td>
       <td><button (click)="onClickCategoryEdit( c.id )">EDIT</button></td>
+      <td><button (click)="onClickCategoryDelete( c.id )">DELETE</button></td>
     </tr>
   </table>
 </div>
+
+<hr>
+<h2>Forum Posts</h2>
+<div>
+  <span *ngFor=" let c of categories; let i = index; ">
+    <input type="checkbox" name="categories" [(ngModel)]=" postForm.categories[ c.id ] "> {{ c.name }}
+  </span>
+</div>
+<div>Subject: <input name="subject" [(ngModel)]=" postForm.subject "></div>
+<div><textarea name="content" [(ngModel)]=" postForm.content " cols="40" rows="4" placeholder="Please input content"></textarea></div>
+<div>File/Photo Upload: <input type="file"></div>
+<div>
+  Options:
+  <input type="checkbox" [(ngModel)]=" postForm.sticky_forum "> Sticky on selected forums.
+  <input type="checkbox" [(ngModel)]=" postForm.sticky_all_forum "> Sticky on all forums.
+</div>
+<div>
+  <button (click)="onSubmitPostForm()">Submit Post</button>
+</div>
+
+{{ postForm | json }}
+
+<hr>
+<h2>Posts</h2>
