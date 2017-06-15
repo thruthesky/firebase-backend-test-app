@@ -1,15 +1,16 @@
 import { Component } from '@angular/core';
+
+
 import {
-  Database, 
-  User, UserTest,
-  Category, CategoryTest, CATEGORIES,
-  Post, PostTest
+  //User, UserTest,
+  //Category, CategoryTest, CATEGORIES,
+  // Post, PostTest, POST,
+  CATEGORY, CATEGORIES,
+  POST,
+  ForumService
 } from './../firebase-cms/src/index';
+
 import * as firebase from 'firebase/app';
-
-
-
-
 
 @Component({
   selector: 'app-root',
@@ -24,7 +25,7 @@ export class AppComponent {
 
 
   // post create/edit form
-  postForm = {
+  postForm: POST = {
     categories: {},
     subject: '',
     content: '',
@@ -33,16 +34,13 @@ export class AppComponent {
   };
 
   constructor(
-    userTest: UserTest,
-    public user: User,
-    private database: Database,
-    public category: Category,
-    public categoryTest: CategoryTest,
-    public post: Post,
-    public postTest: PostTest ) {
+    // userTest: UserTest,
+    // public user: User,
+    public forum: ForumService
+  ) {
     // userTest.run();
 
-    categoryTest.run();
+    // categoryTest.run();
 
 
 
@@ -58,37 +56,37 @@ export class AppComponent {
 
 
 
-  onClickLoginWithGoogle() {
+  // onClickLoginWithGoogle() {
 
-    this.user.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-      .then((res) => {
-        console.log("success");
-        console.log(res);
-      })
-      .catch(e => {
-        console.log('error: ', e);
-      });
-
-
-  }
+  //   this.user.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+  //     .then((res) => {
+  //       console.log("success");
+  //       console.log(res);
+  //     })
+  //     .catch(e => {
+  //       console.log('error: ', e);
+  //     });
 
 
-  onClickLoginWithFacebook() {
+  // }
 
-    this.user.auth.signInWithPopup(new firebase.auth.FacebookAuthProvider())
-      .then((res) => {
-        console.log("facebook login success");
-        console.log(res);
-      })
-      .catch(e => {
-        console.log('error: ', e);
-      });
-  }
+
+  // onClickLoginWithFacebook() {
+
+  //   this.user.auth.signInWithPopup(new firebase.auth.FacebookAuthProvider())
+  //     .then((res) => {
+  //       console.log("facebook login success");
+  //       console.log(res);
+  //     })
+  //     .catch(e => {
+  //       console.log('error: ', e);
+  //     });
+  // }
 
 
   onClickCreateCategory() {
     console.log(`Create: ${this.category_name}`);
-    this.category.create({ id: this.category_id, name: this.category_name }, () => {
+    this.forum.createCategory({ id: this.category_id, name: this.category_name }, () => {
       console.log("create ok")
     }, e => {
       console.error(e);
@@ -98,7 +96,7 @@ export class AppComponent {
 
 
   getCategories() {
-    this.category.gets((categories) => {
+    this.forum.getCategories((categories) => {
       this.categories = categories;
       console.log('categories:', categories);
     }, e => console.error(e));
@@ -109,24 +107,24 @@ export class AppComponent {
     let c = this.categories.find( v => v.id == id );
     console.log(c);
 
-    this.category.edit( { id: c.id, name: c['name'], description: c['description'] }, () => {
+    this.forum.editCategory( { id: c.id, name: c['name'], description: c['description'] }, () => {
       console.log("Updated");
     }, e => console.error(e) );
   }
 
   onSubmitPostForm() {
     console.log("Going to create a post: ", this.postForm );
-    this.post.create( this.postForm, (post) => {
-      
+    this.forum.createPost( this.postForm, (post) => {
+      console.log("Post created: ", post);
     }, e => console.log(e) );
   }
   
   onClickCategoryDelete( id ) {
-    this.category.delete( id, () => console.log("Category deleted"), e => console.error(e) );
+    this.forum.deleteCategory( id, () => console.log("Category deleted"), e => console.error(e) );
   }
 
   listenCategory() {
-    this.category.observe().subscribe( res => {
+    this.forum.observeCategory().subscribe( res => {
       // console.log(res);
       this.categories = res;
     });
