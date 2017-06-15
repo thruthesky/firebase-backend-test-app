@@ -4,7 +4,12 @@
     Welcome to {{title}}!!
   </h1>
 </div>
-<!--
+
+
+
+<!--{{ user | json }}-->
+
+
 <div *ngIf=" !user.isLogged ">
   <button (click)="onClickLoginWithGoogle()">Google Login</button>
   <button (click)="onClickLoginWithFacebook()">Facebook Login</button>
@@ -12,15 +17,15 @@
 <div *ngIf=" user.isLogged ">
   You are logged in as <b>{{ user.auth.currentUser.displayName }}</b>
   <button (click)=" user.logout() ">Loggout</button>
-</div>-->
+</div>
 
 
-<!--<div>Am I admin? {{ user.isAdmin }}</div>-->
+<div>Am I admin? {{ user.isAdmin }}</div>
 
 
 <hr>
 <h2>Forum Category</h2>
-
+<div style="color: darkred;">{{ category_error }}</div>
 Create a forum category:
 <input name="category_id" [(ngModel)]="category_id" placeholder="Category ID">
 <input name="category_name" [(ngModel)]="category_name" placeholder="Category Name">
@@ -47,6 +52,7 @@ Create a forum category:
 
 <hr>
 <h2>Forum Posts</h2>
+<div style="color: darkred;">{{ post_error }}</div>
 <div>
   <span *ngFor=" let c of categories; let i = index; ">
     <input type="checkbox" name="categories" [(ngModel)]=" postForm.categories[ c.id ] "> {{ c.name }}
