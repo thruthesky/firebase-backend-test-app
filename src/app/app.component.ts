@@ -56,7 +56,34 @@ export class AppComponent {
 
 
 
+    // this.testCreatePosts('qna', 100);
 
+
+
+    this.forum.page( { page: 1, size: 5 } )
+      .then( posts => {
+        console.log('1st page posts: ');
+        for( let p of posts ) console.log( p.subject );
+      });
+
+
+    this.forum.page( { page: 2, size: 5 } )
+      .then( posts => {
+        console.log('2nd page posts: ');
+        for( let p of posts ) console.log( p.subject );
+      });
+
+
+
+  }
+
+  async testCreatePosts( category, n ) {
+
+    let post: POST = { categories: [ category ] };
+    for( let i = 0; i < n; i ++ ) {
+      post.subject = `${i}th subject.`;
+      await this.forum.createPost( post );
+    }
   }
 
 
@@ -164,4 +191,6 @@ export class AppComponent {
       this.categories = res;
     });
   }
+
+
 }

@@ -7,9 +7,16 @@ import { AppComponent } from './app.component';
 
 
 
+
+
+
 import { FirebaseCMSModule } from './../firebase-cms/src/index';
 import { AngularFireModule } from 'angularfire2';
+import { AngularFireAuthModule } from 'angularfire2/auth';
+import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { environment } from '../environments/environment';
+
+
 
 
 
@@ -21,6 +28,8 @@ import { environment } from '../environments/environment';
     BrowserModule,
     FormsModule,
     AngularFireModule.initializeApp(environment.firebase),
+    AngularFireAuthModule,
+    AngularFireDatabaseModule,
     FirebaseCMSModule.forRoot()
   ],
   providers: [],
