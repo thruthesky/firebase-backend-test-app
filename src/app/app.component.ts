@@ -2,14 +2,15 @@ import { Component } from '@angular/core';
 
 
 import {
-  User,
+  UserService,
   // UserTest,
   //Category, CategoryTest, CATEGORIES,
   // Post, PostTest, POST,
   CATEGORY, CATEGORIES,
   POST,
   ForumService
-} from './../firebase-cms/src/index';
+} from '../firebase-backend/firebase-backend.module';
+
 
 import * as firebase from 'firebase/app';
 
@@ -37,28 +38,19 @@ export class AppComponent {
 
   constructor(
     // userTest: UserTest,
-    public user: User,
+    public user: UserService,
     public forum: ForumService
   ) {
-
-
 
     // userTest.run();
 
     // categoryTest.run();
 
-
-
     // this.getCategories();
-
 
     this.listenCategory();
 
-
-
     // this.testCreatePosts('qna', 100);
-
-
 
     this.forum.page( { page: 1, size: 5 } )
       .then( posts => {

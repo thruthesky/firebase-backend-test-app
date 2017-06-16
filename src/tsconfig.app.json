@@ -8,6 +8,8 @@
   },
   "exclude": [
     "test.ts",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "./firebase-backend/functions/api.ts",
+    "./firebase-backend/functions/test.ts"
   ]
 }

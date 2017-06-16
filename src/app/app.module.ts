@@ -9,8 +9,8 @@ import { AppComponent } from './app.component';
 
 
 
+import { FirebaseBackendModule } from './../firebase-backend/firebase-backend.module';
 
-import { FirebaseCMSModule } from './../firebase-cms/src/index';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireAuthModule } from 'angularfire2/auth';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
@@ -30,7 +30,7 @@ import { environment } from '../environments/environment';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,
     AngularFireDatabaseModule,
-    FirebaseCMSModule.forRoot()
+    FirebaseBackendModule
   ],
   providers: [],
   bootstrap: [AppComponent]
