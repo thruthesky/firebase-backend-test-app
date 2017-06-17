@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
+import { Http } from '@angular/http';
 
 
 import {
   UserService,
-  // UserTest,
-  //Category, CategoryTest, CATEGORIES,
-  // Post, PostTest, POST,
   CATEGORY, CATEGORIES,
   POST,
-  ForumService
+  ForumService,
+  ApiService, TestService
 } from '../firebase-backend/firebase-backend.module';
 
 
@@ -20,7 +19,7 @@ import * as firebase from 'firebase/app';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  
+
   category_error: string;
   category_id: string;
   category_name: string;
@@ -38,9 +37,18 @@ export class AppComponent {
 
   constructor(
     // userTest: UserTest,
+    
+    private api: ApiService,
+    test: TestService,
     public user: UserService,
     public forum: ForumService
   ) {
+
+    api.setBackendUrl( 'http://localhost:8010/test-ec3e3/us-central1/postApi' );
+    test.run( api, forum );
+
+
+
 
     // userTest.run();
 
@@ -52,29 +60,29 @@ export class AppComponent {
 
     // this.testCreatePosts('qna', 100);
 
-    this.forum.page( { page: 1, size: 5 } )
-      .then( posts => {
+    this.forum.page({ page: 1, size: 5 })
+      .then(posts => {
         console.log('1st page posts: ');
-        for( let p of posts ) console.log( p.subject );
+        for (let p of posts) console.log(p.subject);
       });
 
 
-    this.forum.page( { page: 2, size: 5 } )
-      .then( posts => {
+    this.forum.page({ page: 2, size: 5 })
+      .then(posts => {
         console.log('2nd page posts: ');
-        for( let p of posts ) console.log( p.subject );
+        for (let p of posts) console.log(p.subject);
       });
 
 
 
   }
 
-  async testCreatePosts( category, n ) {
+  async testCreatePosts(category, n) {
 
-    let post: POST = { categories: [ category ] };
-    for( let i = 0; i < n; i ++ ) {
+    let post: POST = { categories: [category] };
+    for (let i = 0; i < n; i++) {
       post.subject = `${i}th subject.`;
-      await this.forum.createPost( post );
+      await this.forum.createPost(post);
     }
   }
 
@@ -112,9 +120,9 @@ export class AppComponent {
     console.log(`Create: ${this.category_name}`);
 
     let category = { id: this.category_id, name: this.category_name };
-    this.forum.createCategory( category )
-      .then( id => {} )
-      .catch( e => console.log( e ) );
+    this.forum.createCategory(category)
+      .then(id => { })
+      .catch(e => console.log(e));
 
 
     // this.forum.createCategory(category, () => {
@@ -128,8 +136,8 @@ export class AppComponent {
 
   getCategories() {
     this.forum.getCategories()
-      .then( categories => this.categories )
-      .catch( e => this.category_error = e.message );
+      .then(categories => this.categories)
+      .catch(e => this.category_error = e.message);
 
     // this.forum.getCategories((categories) => {
     //   this.categories = categories;
@@ -137,15 +145,15 @@ export class AppComponent {
     // }, e => console.error(e));
   }
 
-  onClickCategoryEdit( id ) {
+  onClickCategoryEdit(id) {
     console.log(`Going to edit: ${id}`);
-    let c = this.categories.find( v => v.id == id );
+    let c = this.categories.find(v => v.id == id);
     console.log(c);
 
     let category = { id: c.id, name: c['name'], description: c['description'] };
-    this.forum.editCategory( category )
-      .then( category_id => {} )
-      .catch( e => this.category_error = e.message );
+    this.forum.editCategory(category)
+      .then(category_id => { })
+      .catch(e => this.category_error = e.message);
 
 
 
@@ -156,32 +164,105 @@ export class AppComponent {
   }
 
   onSubmitPostForm() {
-    console.log("Going to create a post: ", this.postForm );
+    console.log("Going to create a post: ", this.postForm);
 
-    this.postForm.categories = Object.keys( this.postForm.categories ); // convert category object to array.
-    this.forum.createPost( <POST>this.postForm )
-      .then( key => console.log(`post created with : ${key}`))
-      .catch( e => {
-        this.post_error = e.message;
-        console.error(e);
-       } );
+
+
+
+    this.postForm.categories = Object.keys(this.postForm.categories); // convert category object to array.
+
+    // this.forum.createPost( <POST>this.postForm )
+    //   .then( key => console.log(`post created with : ${key}`))
+    //   .catch( e => {
+    //     this.post_error = e.message;
+    //     console.error(e);
+    //    } );
+
+
+
+
+
+
   }
-  
-  onClickCategoryDelete( id ) {
-    
-    this.forum.deleteCategory( id )
-      .then( () => {} )
-      .catch( e => this.category_error = e.message );
+
+  onClickCategoryDelete(id) {
+
+    this.forum.deleteCategory(id)
+      .then(() => { })
+      .catch(e => this.category_error = e.message);
 
     // this.forum.deleteCategory( id, () => console.log("Category deleted"), e => console.error(e) );
 
   }
 
   listenCategory() {
-    this.forum.observeCategory().subscribe( res => {
+    this.forum.observeCategory().subscribe(res => {
       // console.log(res);
       this.categories = res;
     });
+  }
+
+
+
+  protected http_build_query(formdata, numericPrefix = '', argSeparator = '') {
+    var urlencode = this.urlencode;
+    var value
+    var key
+    var tmp = []
+    var _httpBuildQueryHelper = function (key, val, argSeparator) {
+      var k
+      var tmp = []
+      if (val === true) {
+        val = '1'
+      } else if (val === false) {
+        val = '0'
+      }
+      if (val !== null) {
+        if (typeof val === 'object') {
+          for (k in val) {
+            if (val[k] !== null) {
+              tmp.push(_httpBuildQueryHelper(key + '[' + k + ']', val[k], argSeparator))
+            }
+          }
+          return tmp.join(argSeparator)
+        } else if (typeof val !== 'function') {
+          return urlencode(key) + '=' + urlencode(val)
+        } else {
+          throw new Error('There was an error processing for http_build_query().')
+        }
+      } else {
+        return ''
+      }
+    }
+
+    if (!argSeparator) {
+      argSeparator = '&'
+    }
+    for (key in formdata) {
+      value = formdata[key]
+      if (numericPrefix && !isNaN(key)) {
+        key = String(numericPrefix) + key
+      }
+      var query = _httpBuildQueryHelper(key, value, argSeparator)
+      if (query !== '') {
+        tmp.push(query)
+      }
+    }
+
+    return tmp.join(argSeparator)
+  }
+
+
+
+  protected urlencode(str) {
+    str = (str + '')
+    return encodeURIComponent(str)
+      .replace(/!/g, '%21')
+      .replace(/'/g, '%27')
+      .replace(/\(/g, '%28')
+      .replace(/\)/g, '%29')
+      .replace(/\*/g, '%2A')
+      .replace(/%20/g, '+')
   }
 
 
