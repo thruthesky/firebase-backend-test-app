@@ -4,7 +4,7 @@ import { Http } from '@angular/http';
 
 import {
   UserService,
-  CATEGORY, CATEGORIES,
+  CATEGORY, CATEGORIES, POST_REQUEST,
   POST,
   ForumService,
   ApiService, TestService
@@ -29,8 +29,8 @@ export class AppComponent {
 
 
   // post create/edit form
-  postForm = {
-    categories: {},
+  postForm: POST = {
+    categories: <any>[],
     subject: '',
     content: ''
   };
@@ -178,7 +178,23 @@ export class AppComponent {
     //     console.error(e);
     //    } );
 
+    this.postForm.uid = "-any-uid";
 
+
+
+    let req: POST_REQUEST = {
+      function: 'create',
+      data: this.postForm
+    }
+
+
+
+    this.api.post( req ).subscribe( key => {
+      console.log("Post create with key: ", key);
+      this.postForm.categories = <any>{};
+    }, e => {
+      console.error(e);
+    });
 
 
 
