@@ -5,7 +5,7 @@ import { Http } from '@angular/http';
 import {
   UserService,
   CATEGORY, CATEGORIES, POST_REQUEST,
-  POST,
+  POST, POSTS,
   ForumService,
   ApiService, TestService
 } from '../firebase-backend/firebase-backend.module';
@@ -35,6 +35,8 @@ export class AppComponent {
     content: ''
   };
 
+  posts: POSTS = [];
+
   constructor(
     // userTest: UserTest,
     
@@ -44,10 +46,15 @@ export class AppComponent {
     public forum: ForumService
   ) {
 
-    api.setBackendUrl( 'http://localhost:8010/test-ec3e3/us-central1/postApi' );
-    test.run( api, forum );
+    //api.setBackendUrl( 'http://localhost:8010/test-ec3e3/us-central1/postApi' );
+    
+    api.setBackendUrl( 'https://us-central1-test-ec3e3.cloudfunctions.net/postApi' );
+    // test.run( api, forum );
 
 
+
+    this.loadPosts();
+  
 
 
     // userTest.run();
@@ -56,25 +63,37 @@ export class AppComponent {
 
     // this.getCategories();
 
-    this.listenCategory();
+   this.listenCategory();
+
+
 
     // this.testCreatePosts('qna', 100);
 
-    this.forum.page({ page: 1, size: 5 })
-      .then(posts => {
-        console.log('1st page posts: ');
-        for (let p of posts) console.log(p.subject);
-      });
+    // this.forum.page({ page: 1, size: 5 })
+    //   .then(posts => {
+    //     console.log('1st page posts: ');
+    //     for (let p of posts) console.log(p.subject);
+    //   });
 
 
-    this.forum.page({ page: 2, size: 5 })
-      .then(posts => {
-        console.log('2nd page posts: ');
-        for (let p of posts) console.log(p.subject);
-      });
+    // this.forum.page({ page: 2, size: 5 })
+    //   .then(posts => {
+    //     console.log('2nd page posts: ');
+    //     for (let p of posts) console.log(p.subject);
+    //   });
 
 
 
+  }
+
+  loadPosts() {
+    this.posts = [];
+    this.forum.postData().once('value').then( s => {;
+      let obj = s.val();
+      for( let k of Object.keys( obj ) ) {
+        this.posts.push( obj[k] );
+      }
+    });
   }
 
   async testCreatePosts(category, n) {
@@ -182,22 +201,24 @@ export class AppComponent {
 
 
 
+
+
     let req: POST_REQUEST = {
       function: 'create',
       data: this.postForm
     }
 
 
+    if ( this.postForm.key ) req.function = 'edit';
+
 
     this.api.post( req ).subscribe( key => {
       console.log("Post create with key: ", key);
       this.postForm.categories = <any>{};
+      this.loadPosts();
     }, e => {
       console.error(e);
     });
-
-
-
 
   }
 
@@ -220,65 +241,16 @@ export class AppComponent {
 
 
 
-  protected http_build_query(formdata, numericPrefix = '', argSeparator = '') {
-    var urlencode = this.urlencode;
-    var value
-    var key
-    var tmp = []
-    var _httpBuildQueryHelper = function (key, val, argSeparator) {
-      var k
-      var tmp = []
-      if (val === true) {
-        val = '1'
-      } else if (val === false) {
-        val = '0'
-      }
-      if (val !== null) {
-        if (typeof val === 'object') {
-          for (k in val) {
-            if (val[k] !== null) {
-              tmp.push(_httpBuildQueryHelper(key + '[' + k + ']', val[k], argSeparator))
-            }
-          }
-          return tmp.join(argSeparator)
-        } else if (typeof val !== 'function') {
-          return urlencode(key) + '=' + urlencode(val)
-        } else {
-          throw new Error('There was an error processing for http_build_query().')
-        }
-      } else {
-        return ''
-      }
-    }
+  onClickEdit( post:POST ) {
 
-    if (!argSeparator) {
-      argSeparator = '&'
-    }
-    for (key in formdata) {
-      value = formdata[key]
-      if (numericPrefix && !isNaN(key)) {
-        key = String(numericPrefix) + key
-      }
-      var query = _httpBuildQueryHelper(key, value, argSeparator)
-      if (query !== '') {
-        tmp.push(query)
-      }
-    }
+    let obj = {};
+    for( let c of post.categories ) obj[c] = true;
+    this.postForm.categories = <any> obj;
+    this.postForm.subject = post.subject;
+    this.postForm.content = post.content;
 
-    return tmp.join(argSeparator)
-  }
+    this.postForm.key = post.key;
 
-
-
-  protected urlencode(str) {
-    str = (str + '')
-    return encodeURIComponent(str)
-      .replace(/!/g, '%21')
-      .replace(/'/g, '%27')
-      .replace(/\(/g, '%28')
-      .replace(/\)/g, '%29')
-      .replace(/\*/g, '%2A')
-      .replace(/%20/g, '+')
   }
 
 
