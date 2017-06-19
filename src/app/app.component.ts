@@ -4,7 +4,7 @@ import { Http } from '@angular/http';
 
 import {
   UserService,
-  CATEGORY, CATEGORIES, POST_REQUEST,
+  CATEGORY, CATEGORIES,
   POST, POSTS,
   ForumService,
   ApiService, TestService
@@ -30,7 +30,9 @@ export class AppComponent {
 
   // post create/edit form
   postForm: POST = {
-    categories: <any>[],
+    uid: '',
+    name: '',
+    categories: [],
     subject: '',
     content: ''
   };
@@ -49,6 +51,7 @@ export class AppComponent {
     //api.setBackendUrl( 'http://localhost:8010/test-ec3e3/us-central1/postApi' );
     
     api.setBackendUrl( 'https://us-central1-test-ec3e3.cloudfunctions.net/postApi' );
+    
     // test.run( api, forum );
 
 
@@ -91,14 +94,14 @@ export class AppComponent {
     this.forum.postData().once('value').then( s => {;
       let obj = s.val();
       for( let k of Object.keys( obj ) ) {
-        this.posts.push( obj[k] );
+        this.posts.unshift( obj[k] );
       }
     });
   }
 
   async testCreatePosts(category, n) {
 
-    let post: POST = { categories: [category] };
+    let post: POST = { uid: '', categories: [category] };
     for (let i = 0; i < n; i++) {
       post.subject = `${i}th subject.`;
       await this.forum.createPost(post);
@@ -117,7 +120,6 @@ export class AppComponent {
       .catch(e => {
         console.log('error: ', e);
       });
-
 
   }
 
@@ -183,38 +185,21 @@ export class AppComponent {
   }
 
   onSubmitPostForm() {
-    console.log("Going to create a post: ", this.postForm);
+    console.log("Going to create a post : ", this.postForm);
+
+    /// POST category is an array of string but HTML checkboxes are object. Convert checkboxes of category object into an array of POST category.
+    this.postForm.categories = Object.keys(this.postForm.categories);
+    
+    this.postForm.uid = this.user.uid;
+    this.postForm.name = this.user.name;
 
 
+    // this.postForm.function = 'create';
+    // if ( this.postForm.key ) this.postForm.function = 'edit';
 
-
-    this.postForm.categories = Object.keys(this.postForm.categories); // convert category object to array.
-
-    // this.forum.createPost( <POST>this.postForm )
-    //   .then( key => console.log(`post created with : ${key}`))
-    //   .catch( e => {
-    //     this.post_error = e.message;
-    //     console.error(e);
-    //    } );
-
-    this.postForm.uid = "-any-uid";
-
-
-
-
-
-    let req: POST_REQUEST = {
-      function: 'create',
-      data: this.postForm
-    }
-
-
-    if ( this.postForm.key ) req.function = 'edit';
-
-
-    this.api.post( req ).subscribe( key => {
+    this.api.post( this.postForm ).subscribe( key => {
       console.log("Post create with key: ", key);
-      this.postForm.categories = <any>{};
+      this.postForm.categories = [];
       this.loadPosts();
     }, e => {
       console.error(e);
@@ -243,12 +228,13 @@ export class AppComponent {
 
   onClickEdit( post:POST ) {
 
+    /// POST category is an array of string but checkboxes of HTML FORM are objects. You need to convert it to objeccts.
     let obj = {};
     for( let c of post.categories ) obj[c] = true;
     this.postForm.categories = <any> obj;
+
     this.postForm.subject = post.subject;
     this.postForm.content = post.content;
-
     this.postForm.key = post.key;
 
   }

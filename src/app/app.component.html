@@ -79,6 +79,12 @@ Create a forum category:
 <h2>Posts</h2>
 
 <div *ngFor="let post of posts; let i = index ">
-  {{ post.subject }}
-  <button (click)=" onClickEdit( post ) ">EDIT</button>
+  <div class="subject">
+    {{ post.subject }}
+    <button (click)=" onClickEdit( post ) ">EDIT</button>
+  </div>
+  <div>
+    <b>{{ post.name }}</b>
+  </div>
+  <div class="content" style="padding: 1em; background-color: #efefef;">{{ post.content }}</div>
 </div>
